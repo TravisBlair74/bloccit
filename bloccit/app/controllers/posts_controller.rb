@@ -1,5 +1,7 @@
 class PostsController < ApplicationController
   
+  before_action :require_sign_in, except: :show
+  
   def show
      @post = Post.find(params[:id])
   end
@@ -10,21 +12,16 @@ class PostsController < ApplicationController
   end
   
   def create
-  # #9
-     @post = Post.new
-     @post.title = params[:post][:title]
-     @post.body = params[:post][:body]
-     @topic = Topic.find(params[:topic_id])
- # #35
-     @post.topic = @topic
 
-    # #10
+     @topic = Topic.find(params[:topic_id])
+     @post = @topic.posts.build(post_params)
+
+     @post.user = current_user
+
      if @post.save
-    # #11
        flash[:notice] = "Post was saved."
        redirect_to [@topic, @post]
      else
-    # #12
        flash.now[:alert] = "There was an error saving the post. Please try again."
        render :new
      end
@@ -36,8 +33,7 @@ class PostsController < ApplicationController
   
   def update
      @post = Post.find(params[:id])
-     @post.title = params[:post][:title]
-     @post.body = params[:post][:body]
+     @post.assign_attributes(post_params)
  
      if @post.save
        flash[:notice] = "Post was updated."
@@ -51,7 +47,6 @@ class PostsController < ApplicationController
    def destroy
      @post = Post.find(params[:id])
  
- # #8
      if @post.destroy
        flash[:notice] = "\"#{@post.title}\" was deleted successfully."
        redirect_to @post.topic
@@ -61,4 +56,9 @@ class PostsController < ApplicationController
      end
    end
   
+   private
+ 
+   def post_params
+     params.require(:post).permit(:title, :body)
+   end
 end
