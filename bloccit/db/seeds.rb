@@ -54,7 +54,7 @@
  # Create a member
  member = User.create!(
    name:     'Member User',
-   email:    'member@example.com',
+   email:    'tman799@gmail.com',
    password: 'helloworld'
  )
 
